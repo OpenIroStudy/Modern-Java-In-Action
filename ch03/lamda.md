@@ -455,3 +455,38 @@ Answer : 책 111pg 확인 ㅋ-ㅋ
 ```
   
   
+
+대상 형식을 이용해서 함수 디스크립터를 알 수 있으므로 컴파일러는 람다의 시그니처도 추론할 수 있다.  
+결과적으로 컴파일러는 람다 표현식의 파라미터 형식에 접근할 수 있으므로 람다 문법에서 이를 생략할 수 있다.  
+
+``java
+List<Apple> greenApples = filter(inventory, apple -> Green.equals(apple.getColor())); //파라미터 a에는 형식을 명시적으로 지정하지 않았다.   
+Comparator<Apple> c = (Apple a1, Apple a2) -> a1.getWeight().compareTo(a2.getWeight()); //형식을 추론하지 않음
+Comparator<Apple> c = (a1, a2) -> a1.getWeight().compareTo(a2.getWeight());	 //형식을 추론함
+	
+	
+```
+	
+	
+
+* 람다캡처림: 자유 변수를 활용할 수 있다. 
+```java
+int portNum = 1337;
+Runnable r = () -> System.out.println(portNum);
+	
+```
+	
+	
+람다는 인스턴스 변수와 지역 변수를 자유롭게 캡쳐할 수 있다. 하지만 그러려면 지역 변수는 명시적으로 final로 선언되거나 실질적으로 final로 선언된 변수와 똑같이 사용되어야 한다. 
+람다 표현식은 한 번만 할당할 수 있는 지역 변수를 캡쳐할 수 있다.  
+
+```java
+	int portNum = 123;
+        Runnable r = () -> System.out.println(portNum);
+	portNum = 456; //컴파일 에러
+```
+인스턴스 변수는 힙에 저장되는 반면 지역변수는 스택에 위치한다.   
+람다에서 지역변수에 바로 접근할 수 있다는 가정하에 람다가 스레드에서 실행된다면 변수를 할당한 스레드가 사라져서   
+변수 할당이 해제되었는데도 람다를 실행하는 스레드에서는 해당 변수에 접근하려 할 수 있다.    
+따라서 자바 구현에서는 원래 변수에 접근을 허용하는 것이 아니라 자유 지역 변수의 복사본을 제공한다.    
+복사본의 값이 바뀌지 않아야 하므로 지역 변수에는 한 번만 값을 할당해야 하는 제약이 생긴다.      

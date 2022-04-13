@@ -544,3 +544,176 @@ Car car2 = function2.apply("SM5");
  <br><br> 
   
 람다표현식과 메서드 참조 활용  
+120pg 퀴즈를 푸러보시와요  
+	
+* 람다 활용해보기	
+	
+[sort 메서드 원형]  
+정렬 기능은 Java 에서 제공하고 있는 sort 메서드를 사용하지만 정렬 방식인 Comparator 는 사용자가직접 인자로 전달해야 합니다.  
+```java
+default void sort(Comparator<? super E> c) {
+    Object[] a = this.toArray();
+    Arrays.sort(a, (Comparator) c);
+    ListIterator<E> i = this.listIterator();
+    for (Object e : a) {
+        i.next();
+        i.set((E) e);
+    }
+}
+``` 
+
+1. 동작 파라미터화
+함수형 인터페이스를 상속받은 AppleComparator 클래스를 별도로 생성한후 코드블럭을 해당클래스의 메서드에 생성하는 방법입니다. 만들어놓은 코드블럭은 sort 메서드 사용시 인자로 전달하게 됩니다.  
+
+<br><br> 
+```java
+[AppleComparator.java]
+import java.util.Comparator;
+
+public class AppleComparator implements Comparator<Apple> {
+    @Override
+    public int compare(Apple o1, Apple o2) {
+        return o1.getWeight().compareTo(o2.getWeight());
+    }
+}
+```
+
+2. 익명 클래스
+클래스를 한번만 생성하여 사용하려는 목적이라면 클래스를 익명으로 생성하는 방법이 있습니다. sort 메서드 사용시 인자에 익명클래스를 직접 전달합니다.  
+ 
+```java
+[FunctionalTest.java]
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+public class FunctionalTest {
+
+    public static void main(String[] args) {
+
+        List<Apple> inventory = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            Apple randApple = new Apple((int) (Math.random() * 150 + 100));
+            inventory.add(randApple);
+        }
+		
+		// 익명 클래스
+        inventory.sort(new Comparator<Apple>() {
+            @Override
+            public int compare(Apple o1, Apple o2) {
+                return o1.getWeight().compareTo(o2.getWeight());
+            }
+        });
+        
+        for (Apple apple : inventory)
+            System.out.printf("Apple Weight : %d\n", apple.getWeight());
+
+    }
+}
+``` 
+
+3. 람다 표현식 사용
+익명 클래스 방식은 코드가 길어지므로 람다표현식으로 좀더 간결하게 작성할수 있습니다.  
+
+ 
+```java
+[FunctionalTest.java]
+import java.util.ArrayList;
+import java.util.List;
+
+public class FunctionalTest {
+
+    public static void main(String[] args) {
+
+        List<Apple> inventory = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            Apple randApple = new Apple((int) (Math.random() * 150 + 100));
+            inventory.add(randApple);
+        }
+		
+		// 람다표현식
+        inventory.sort((Apple a1, Apple a2) -> a1.getWeight().compareTo(a2.getWeight()));
+
+        for (Apple apple : inventory)
+            System.out.printf("Apple Weight : %d\n", apple.getWeight());
+
+    }
+}
+ 
+```
+ 
+[Comparable 함수 원형]  
+Comparator는 Comparable 키를 추출하여 Comparator 객체로 만드는 Function 함수를 인자로 받는 정적 메서드 comparing을 포함합니다.  
+```java
+public static <T, U extends Comparable<? super U>> Comparator<T> comparing(
+        Function<? super T, ? extends U> keyExtractor)
+{
+    Objects.requireNonNull(keyExtractor);
+    return (Comparator<T> & Serializable)
+        (c1, c2) -> keyExtractor.apply(c1).compareTo(keyExtractor.apply(c2));
+}
+ 
+
+[FunctionalTest.java]
+import java.util.ArrayList;
+import java.util.List;
+
+public class FunctionalTest {
+
+    public static void main(String[] args) {
+
+        List<Apple> inventory = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            Apple randApple = new Apple((int) (Math.random() * 150 + 100));
+            inventory.add(randApple);
+        }
+		
+		// 람다표현식
+		inventory.sort(Comparator.comparing((Apple apple) -> apple.getWeight()));
+
+        for (Apple apple : inventory)
+            System.out.printf("Apple Weight : %d\n", apple.getWeight());
+
+    }
+}
+``` 
+
+ 
+
+4. 메서드 참조
+람다표현식을 마지막으로 한번더 간결하게 할수있습니다. 코드가 짧아져서 간결해졌을 뿐만 아니라 가독성과 코드의 목적이 좀더 확실하게 보여집니다.  
+
+ 
+```java
+[FunctionalTest.java]
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+public class FunctionalTest {
+
+    public static void main(String[] args) {
+
+        List<Apple> inventory = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            Apple randApple = new Apple((int) (Math.random() * 150 + 100));
+            inventory.add(randApple);
+        }
+        
+		// 메서드 참조
+        inventory.sort(Comparator.comparing(Apple::getWeight));
+
+        for (Apple apple : inventory)
+            System.out.printf("Apple Weight : %d\n", apple.getWeight());
+
+    }
+```
+
+
+
+* Comparator 조합 부터는 이 블로그가 정리를 잘 해놔서 참조^^
+https://ksr930.tistory.com/232?category=980758  

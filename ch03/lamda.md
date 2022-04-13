@@ -490,3 +490,57 @@ Runnable r = () -> System.out.println(portNum);
 변수 할당이 해제되었는데도 람다를 실행하는 스레드에서는 해당 변수에 접근하려 할 수 있다.    
 따라서 자바 구현에서는 원래 변수에 접근을 허용하는 것이 아니라 자유 지역 변수의 복사본을 제공한다.    
 복사본의 값이 바뀌지 않아야 하므로 지역 변수에는 한 번만 값을 할당해야 하는 제약이 생긴다.      
+	
+	
+	
+##### 메서드 참조
+----------------------------
+메서드 참조를 이용하면 가존의 메서드 정의를 재활용해서 람다처럼 전달할 수 있다.   
+람다 표현식보다 메서드 참조를 사용하는 것이 더 가독성이 좋으며 자연스러울 수 있다.   
+<br><br>
+inventory.sort((Apple a1, Apple a2) -> a1.getWeight().compareTo(...) //기존 코드  
+inventory.sort(comparing(Apple::getWeight)); //메서드 참조  
+	
+	
+<br><br>
+	
+	
+메서드 참조는 람다의 축약형이라고 생각할 수 있다.  
+메서드명 앞에 구분자 (::)를 붙이는 방식으로 메서드 참조를 활용할 수 있다.  
+실제로 메서드를 호출하는 것이 아니므로 괄호는 필요 없다. 
+	
+![image](https://user-images.githubusercontent.com/43237961/163249084-789fd788-8560-4442-bd5e-2dfd6a67adf7.png)  
+  
+* 메서드 참조 유형
+	* 정적 메서드 참조 : Integer의 parseInt는 Integer::parseInt로 표현할 수 있다.
+	* 다양한 형식의 인스턴스 참조 메서드 참조 (static 제외) : String의 length 메서드는 String::length로 표현할 수 있다. ex) (String s) -> s.upperCase()
+	* 기존 객체의 인스턴스 메서드 참조 : Transaction을 할당받은 expensiveTransaction 지역 변수가 있고, Transaction 객체에는 getValue 메서드가 있다면, ,이를 expensiveTransction::getValue로 표현할 수 잇다. 
+	
+![image](https://user-images.githubusercontent.com/43237961/163249950-9efa1475-1277-4620-b44d-1f953d80d48d.png)  
+118pg 의 퀴즈를 푸러보세요^^;;..  
+	
+	
+* 생성자 참조 
+ClassName::new처럼 클래스명과 new 키워드를 이용해서 기존 생성자의 참조를 만들 수 있다. 
+
+1. 인자가 없는 생성자
+// Lambda Expression    
+Supplier<Car> supplier1 = () -> new Car();  
+Car car1 = supplier1.get();  
+<br><br> 
+// Method Reference  
+Supplier<Car> supplier2 = Car::new;  
+Car car2 = supplier2.get();  
+ 
+<br><br> 
+2. 인자가 있는 생성자  
+// Lambda Expression  
+Function<String, Car> function1 = (String s) -> new Car(s);  
+Car car1 = function1.apply("SM5");  
+<br><br> 
+// Method Reference  
+Function<String, Car> function2 = Car::new;  
+Car car2 = function2.apply("SM5");  
+ <br><br> 
+  
+람다표현식과 메서드 참조 활용  

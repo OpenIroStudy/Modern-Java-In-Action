@@ -102,10 +102,85 @@ System.out.println(favouriteMovies.getOrDefault("Olivia", "Matrix")); // James B
 System.out.println(favouriteMovies.getOrDefault("Olivia2", "Matrix")); // Matrix
 ```  
 
-### 계산 패턴
+### putIfAbsent 메서드
+``` java
+default V putIfAbsent(K key, V value) 
+```  
+* key 값이 존재하는 경우 : Map의 value 값을 반환한다.   
+* key 값이 존재하지 않는 경우 : key와 value를 Map에 저장하고 null을 반환한다.    
 
-- computeIfAbsent : 제공된 키에 해당하는 값이 없거나 null이라면, 키를 이용해 새로운 값을 계산하고 맵에 추가한다.
-- computeIfPresent : 제공된 키가 존재하면 새 값을 계산하고 맵에 추가한다. 계산한 값이 null이라면 맵에 추가하지 않으면 오히려 존재하던 key또한 제거한다.
+
+### 계산 패턴  
+### compute 메서드 
+ key와 remappingFunction을 인자로 받고 key가 존재해야, value값을 인자로 넘겨준 remappingFunction 람다 함수의 결과로 업데이트가 된다.  
+ key 값이 존재하지 않는 경우에는 NullPointerException이 발생.  
+``` java
+default V compute(K key,
+        BiFunction<? super K, ? super V, ? extends V> remappingFunction)
+@Test
+public void compute() {
+    Map<String, Integer> map = new HashMap<>();
+    map.put("john", 20);
+    map.put("paul", 30);
+    map.put("peter", 40);
+
+    map.compute("peter", (k, v) -> v + 50);
+    assertThat(map.get("peter")).isEqualTo(40 + 50);
+}
+```  
+
+### computeIfAbsent 메서드
+제공된 키에 해당하는 값이 없거나 null이라면, 키를 이용해 새로운 값을 계산하고 맵에 추가한다.  
+``` java
+default V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction)
+```  
+* mappingFunction 람다 함수는 key 값이 존재하지 않을 때만 실행된다.  
+* key 값이 존재하는 경우 : map안에 있는 value을 반환한다.  
+* key 값이 존재하지 않는 경우 : Map에 새로운 key와 value(mappingFunction 람다 함수를 실행한 결과) 값을 저장한다.  
+
+``` java
+@Test
+public void computeIfAbsent() {
+  Map<String, Integer> map = new HashMap<>();
+  map.put("John", 5);
+
+  assertThat(map.computeIfAbsent("John", key -> key.length())).isEqualTo(5); //존재하면 value값을 반환함
+  assertThat(map.size()).isEqualTo(1);
+
+  //없으면 2번째 인자 함수를 실행한 결과를 반환하고 map에도 추가가 된다
+  assertThat(map.computeIfAbsent("John2", key -> key.length())).isEqualTo("John2".length());
+  assertThat(map.get("John2")).isNotNull();
+  assertThat(map.size()).isEqualTo(2);
+
+  assertThat(map.computeIfAbsent("John3", key -> null)).isNull();
+  assertThat(map.size()).isEqualTo(2);
+}
+```  
+
+### computeIfPresent 메서드
+제공된 키가 존재하면 새 값을 계산하고 맵에 추가한다.  
+계산한 값이 null이라면 맵에 추가하지 않으면 오히려 존재하던 key또한 제거한다.  
+``` java
+default V compute(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction)
+```
+* key 값이 존재하는 경우 : remappingFunction 람다 함수 실행 결과로 value 값이 업데이트가 된다.  
+* key가 존재하지 않는 경우 : null을 반환한다.  
+
+``` java
+@Test
+public void computeIfPresent() {
+  Map<String, Integer> map = new HashMap<>();
+  map.put("john", 20);
+  map.put("paul", 30);
+  map.put("peter", 40);
+
+  map.computeIfPresent("kelly", (k, v) -> v + 10);
+  assertThat(map.get("kelly")).isNull();
+
+  map.computeIfPresent("peter", (k, v) -> v + 10);
+  assertThat(map.get("peter")).isEqualTo(40 + 10);
+}
+```
 - compute : 제공된 키로 새 값을 계산하고 맵에 저장한다.
 
 ### 삭제 패턴
@@ -123,9 +198,49 @@ default boolean remove(Object key, Object value)
 - replaceAll : BiFunction을 적용한 결과로 각 항목의 값을 교체한다. List의 replaceAll과 비슷한 동작을 수행한다.
 - replace : 키가 존재하면 맵의 값을 바꾼다. 키가 특정 값으로 매핑되었을 때만 값을 교체하는 오버로드 버전도 존재한다.
 
-### 합침
+### merage 메서드
 
-두 개의 맵을 합칠 때 putAll 메서드를 사용했는데, 이때 중복된 키가 있다면 원하는 동작이 이루어지지 못할 수 있다. 새로 제공되는 merge 메서드는 중복된 키에 대한 동작(BiFunction)을 정의해줄 수있다.
+두 개의 맵을 합칠 때 putAll 메서드를 사용했는데, 이때 중복된 키가 있다면 원하는 동작이 이루어지지 못할 수 있다.  
+새로 제공되는 merge 메서드는 중복된 키에 대한 동작(BiFunction)을 정의해줄 수있다.  
+
+``` java
+default V merge(K key, V value, BiFunction<? super V, ? super V, ? extends V> remappingFunction)
+```  
+
+* key 값이 존재하는 경우 :  
+Case 1 : remappingFunction 람다 함수의 결과가 null 아니면
+remappingFunction 람다 함수 실행 결과로 value 값이 업데이트가 된다.  
+
+Case 2 : remappingFunction 람다 함수의 결과가 null 이면 map에서 해당 key를 삭제한다.  
+
+* key가 존재하지 않는 경우 : Map에 key, value값이 추가된다.  
+
+``` java
+@Test
+public void merge() {
+  Map<String, Integer> map = new HashMap<>();
+  map.put("john", 20);
+  map.put("paul", 30);
+  map.put("peter", 40);
+
+  //key값이 존재를 하면, 해당 key의 값을 remapping 함수의 결과 값으로 바꾼다
+  map.merge("peter", 50, (k, v) -> map.get("john") + 10);
+  assertThat(map.get("peter")).isEqualTo(30);
+
+  //key가 존재하고 remapping 함수의 결과가 null이면 map에서 해당 key를 삭제한다
+  map.merge("peter", 30, (k, v) -> map.get("nancy"));
+  assertThat(map.get("peter")).isNull();
+  assertThat(map.size()).isEqualTo(3);
+
+  //key가 존재하지 않으면 key, value값을 추가함
+  map.merge("kelly", 50, (k, v) -> map.get("john") + 10);
+  assertThat(map.get("kelly")).isEqualTo(50);
+  assertThat(map.size()).isEqualTo(4);
+
+}
+```  
+
+
 
 ## 개선된 ConcurrentHashMap
 

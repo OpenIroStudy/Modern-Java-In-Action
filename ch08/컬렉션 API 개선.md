@@ -90,7 +90,17 @@ ageOfFriends.entrySet().stream()
 
 ### getOrDefault 메서드
 
-찾으려는 키가 존재하지 않으면 널이 반환되므로 NPE 방지를 위해 요청 결과가 널인지 확인하는 로직이 필요하다. getOrDefault 메서드로 이 문제를 해결할 수 있다. 단, 키가 존재하더라도 값이 널은 상황은 getOrDefault가 널을 반환할 수 있다.
+찾으려는 키가 존재하지 않으면 널이 반환되므로 NPE 방지를 위해 요청 결과가 널인지 확인하는 로직이 필요하다.  
+getOrDefault 메서드로 이 문제를 해결할 수 있다.  
+단, 키가 존재하더라도 값이 널은 상황은 getOrDefault가 널을 반환할 수 있다.  
+
+``` java
+Map<String, String> favouriteMovies = Map.ofEntries(Map.entry("Raphael", "Star Wars"),
+				Map.entry("Olivia", "James Bond"));
+		
+System.out.println(favouriteMovies.getOrDefault("Olivia", "Matrix")); // James Bond
+System.out.println(favouriteMovies.getOrDefault("Olivia2", "Matrix")); // Matrix
+```  
 
 ### 계산 패턴
 

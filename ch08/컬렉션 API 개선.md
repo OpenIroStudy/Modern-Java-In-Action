@@ -2,9 +2,11 @@
 
 ## 컬렉션 팩토리
 
-기존 작은 컬렉션을 만드는 팩토리 메서드로는`Arrays.asList()` 가 존재했다. 고정 크기의 리스트를 만들었으므로 요소를 갱신할 순 있지만 새 요소를 추가하거나 요소를 삭제할 순 없다. 예로 요소 추가시 `UnsupportedOperationException`이 발생한다.
+기존 작은 컬렉션을 만드는 팩토리 메서드로는`Arrays.asList()` 가 존재했다.  
+고정 크기의 리스트를 만들었으므로 요소를 갱신할 순 있지만 새 요소를 추가하거나 요소를 삭제할 순 없다.  
+예로 요소 추가시 `UnsupportedOperationException`이 발생한다.  
 
-리스트는 이렇게 팩토리 메서드라고 존재했지만 집합의 경우 리스트를 인수로 받는 HashSet 생성자를 사용하거나 스트림 API를 사용하는 방법이 존재했다.
+리스트는 이렇게 팩토리 메서드라고 존재했지만 집합의 경우 리스트를 인수로 받는 HashSet 생성자를 사용하거나 스트림 API를 사용하는 방법이 존재했다.  
 
 ```java
 Set<String> elems1 = new HashSet<>(Arrays.asList("e1","e2","e3"));
@@ -12,7 +14,7 @@ Set<String> elems1 = new HashSet<>(Arrays.asList("e1","e2","e3"));
 Set<String> elems2 = Stream.of("e1","e2","e3").collect(toSet());
 ```
 
-두 방법 모두 매끄럽지 못하며 내부적으로 불필요한 객체 할당을 필요로 한다.그리고 결과는 변환할 수 있는 집합이다.
+두 방법 모두 매끄럽지 못하며 내부적으로 불필요한 객체 할당을 필요로 한다.그리고 결과는 변환할 수 있는 집합이다.  
 
 ### 자바 9에서 제공되는 팩토리 메서드
 
@@ -20,6 +22,9 @@ Set<String> elems2 = Stream.of("e1","e2","e3").collect(toSet());
 - Set.of : 변경할 수 없는 불변 집합을 만든다. 중복된 요소를 제공해 집합 생성 시 `IllegalArgumentException`이 발생한다.
 - Map.of : 키와 값을 번갈아 제공하는 방법으로 맵을 만들 수 있다.
 - Map.ofEntries : Map.Entry<K, V> 객체를 인수로 받아 맵을 만들 수 있다. 엔트리 생성은 Map.entry 팩터리 메서드를 이용해서 전달하자.
+
+* set(), add() 불가 UnsupportedOperationException 발생.  
+* 이런 제약이 꼭 나쁜 것만은 아님. 컬렉션이 의도치 않게 변하는 것을 막을 수 있음.  
 
 ## 리스트와 집합 처리
 
@@ -29,11 +34,22 @@ Set<String> elems2 = Stream.of("e1","e2","e3").collect(toSet());
 
 ### removeIf
 
-Predicate를 만족하는 요소를 제거한다.
-
+Predicate를 만족하는 요소를 제거한다.  
+``` java
+public boolean removeIf(Predicate<? super E> filter)
+```  
 ### replaceAll
 
-UnaryOperator 함수를 이용해 요소를 바꾼다.
+UnaryOperator 함수를 이용해 요소를 바꾼다.  
+``` java
+List<String> list2 = List.of("Raphael", "Olivia", "Thibaut");
+		list2.replaceAll(code -> Character.toLowerCase(code.charAt(0)) + code.substring(1));
+		System.out.println(list2); // java.lang.UnsupportedOperationException
+
+		List<String> list = Arrays.asList("Raphael", "Olivia", "Thibaut");
+		list.replaceAll(code -> Character.toLowerCase(code.charAt(0)) + code.substring(1));
+		System.out.println(list); // [raphael, olivia, thibaut]
+```
 
 ### sort
 
@@ -43,7 +59,17 @@ List 인터페이스에서 제공하는 기능으로 리스트를 정렬한다.
 
 ### forEach
 
-맵에서 키와 값을 반복할 수 있으며, BiConsumer를 인수를 받는 메서드를 지원한다
+맵에서 키와 값을 반복할 수 있으며, BiConsumer를 인수를 받는 메서드를 지원한다.  
+``` java
+for (Entry<String, Integer> entry : ageOfFriends.entrySet()) {
+			String friend = entry.getKey();
+			Integer age = entry.getValue();
+			System.out.println(friends + "is " + age + " years old");
+		}
+
+// 한줄로 줄일 수 있음  
+ageOfFriends.forEach((fiends, age) -> System.out.println(friends + "is " + age + " years old"));
+```
 
 ### 정렬 메서드
 
@@ -51,6 +77,16 @@ List 인터페이스에서 제공하는 기능으로 리스트를 정렬한다.
 
 - Entry.comparingByValue
 - Entry.comparingByKey
+
+``` java
+ageOfFriends.entrySet().stream()
+		.sorted(Entry.comparingByKey())
+		.forEachOrdered(System.out::println);
+		
+ageOfFriends.entrySet().stream()
+		.sorted(Entry.comparingByValue())
+		.forEachOrdered(System.out::println);
+```
 
 ### getOrDefault 메서드
 

@@ -230,12 +230,12 @@ public void merge() {
   //key가 존재하고 remapping 함수의 결과가 null이면 map에서 해당 key를 삭제한다
   map.merge("peter", 30, (k, v) -> map.get("nancy"));
   assertThat(map.get("peter")).isNull();
-  assertThat(map.size()).isEqualTo(3);
+  assertThat(map.size()).isEqualTo(2);
 
   //key가 존재하지 않으면 key, value값을 추가함
   map.merge("kelly", 50, (k, v) -> map.get("john") + 10);
   assertThat(map.get("kelly")).isEqualTo(50);
-  assertThat(map.size()).isEqualTo(4);
+  assertThat(map.size()).isEqualTo(3);
 
 }
 ```  

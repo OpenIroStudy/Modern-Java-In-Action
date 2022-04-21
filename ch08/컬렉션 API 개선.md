@@ -187,16 +187,34 @@ public void computeIfPresent() {
 
 제공된 키에 해당하는 맵 항목을 제거하는 remove 메서드와 더불어, 키가 특정한 값에 연관되어 있을 때만 항목을 제거하면 오버로드 버전 메서드를 제공한다.
 
-```java
+``` java
 default boolean remove(Object key, Object value)
+public V remove(Object key)
 ```
 
 ### 교체 패턴
 
 맵의 항목을 바꾸는데 사용할 수 있는 메서드이다
 
-- replaceAll : BiFunction을 적용한 결과로 각 항목의 값을 교체한다. List의 replaceAll과 비슷한 동작을 수행한다.
-- replace : 키가 존재하면 맵의 값을 바꾼다. 키가 특정 값으로 매핑되었을 때만 값을 교체하는 오버로드 버전도 존재한다.
+- replaceAll : BiFunction을 적용한 결과로 각 항목의 값을 교체한다. List의 replaceAll과 비슷한 동작을 수행한다.  
+- replace : 인자로 전달된 key의 value를 인자로 전달된 value로 교체. 교체되어 삭제되는 value는 리턴.  존재하지 않는 key가 인자로 전달되면 null이 리턴.
+
+public V replace(K key, V value)
+
+``` java
+V replace(K key, V value) 
+
+  map.replaceAll(new BiFunction<String, Integer, Integer>() {
+            @Override
+            public Integer apply(String key, Integer value) {
+                if(key.startsWith("l")) { // "l"로 시작하는 key에 대하여
+                    value = value * 10;
+                    return value;
+                }
+                return value;
+            }
+        });
+```
 
 ### merage 메서드
 
@@ -243,19 +261,40 @@ public void merge() {
 
 
 ## 개선된 ConcurrentHashMap
+ConcurrentHashMap은 내부 자료구조의 특정 부분만 잠궈 동시 추가, 갱신 작업을 허용한다.  :: 스레드 안정성도 제공
+따라서 동기화된 Hashtable 버전에 비해 읽기 쓰기 연산 성능이 월등  
 
 ### 리듀스와 검색
-
+스트림에서 봤던 것과 비슷한 종류의 세가지 연산을 지원.  
+이들 연산은 ConcurrentHashMap의 상태를 잠그지 않고 연산을 수행.  
+따라서 이들 연산에 제공한 함수는 계산이 진행되는 동안 바뀔 수 있는 객체, 값, 순서 등에 의존하지 않아야 한다. (정렬 x , 공유값 x)  
+<br>
+또한 연산에 병렬성 기준값(threshold)를 정해야 한다.  
+맵의 크기가 기준값보다 작으면 순차적으로 연산을 진행한다.  
+기준값을 1로 지정하면 공통 스레드 풀을 이용해 병렬성을 극대화할 수 있다.
 - forEach : 각 (키, 값) 쌍에 주어진 액션을 수행
-- reduce : 모든 (키, 값) 쌍을 제공된 리듀스 함수를 이용해 결과로 합침
-- search : 널이 아닌 값을 반환할 때까지 각 (키, 값) 쌍에 함수를 적용
+- reduce : 모든 (키, 값) 쌍을 제공된 리듀스 함수를 이용해 결과로 합침  
+``` java
+ U reduce(long parallelismThreshold, // 이 작업을 병렬로 실행하는 데 필요한 요소 수
+   BiFunction<? super K,? super V,? extends U> transformer, // 키/값을 입력으로 가지고 그것을 하나의 출력으로 결합한다는 것을 의미
+   BiFunction<? super U,? super U,? extends U> reducer)  // 모든 출력을 누적하는 BiFunction입니다.  
+   
+ ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();
+	  map.put("Mohan", 20);
+	  map.put("Sohan", 22);
+	  map.put("Vishal", 25);
+	  
+	  String output = map.reduce(1, (k, v) -> k + "-" + v,
+	      (s1, s2) -> s1 + ", " + s2);
+	  
+	  System.out.println(output); // Mohan-20, Sohan-22, Vishal-25 
+```
 
-또한 연산에 병렬성 기준값(threshold)를 정해야 한다. 맵의 크기가 기준값보다 작으면 순차적으로 연산을 진행한다. 기준값을 1로 지정하면 공통 스레드 풀을 이용해 병렬성을 극대화할 수 있다.
+- search : 널이 아닌 값을 반환할 때까지 각 (키, 값) 쌍에 함수를 적용  
+``` java
+U search(long parallelismThreshold, BiFunction<? super K,? super V,? extends U> searchFunction)
 
-### 계수
+Integer key = map.search(2, (k, v) -> v.length() < 5 ? k : null);
+```
 
-맵의 매핑 개수를 반환하는 mappingCount 메서드를 제공한다. 기존에 제공되던 size 함수는 int형으로 반환하지만 long 형으로 반환하는 mappingCount를 사용할 때 매핑의 개수가 int의 범위를 넘어서는 상황에 대하여 대처할 수 있을 것이다.
 
-### 집합뷰
-
-ConcurrentHashMap을 집합 뷰로 반환하는 keySet 메서드를 제공한다. 맵을 바꾸면 집합도 바뀌고 반대로 집합을 바꾸면 맵도 영향을 받는다. newKeySet이라는 메서드를 통해 ConcurrentHashMap으로 유지되는 집합을 만들 수도 있다.

@@ -97,5 +97,28 @@ public class Insurance {
 ※ 모든 null 참조를 Optional로 대치하는것은 바람직 하지 않다.  
 ※ Optional을 unwrap해서 값이 없을 수 있는 상황에 적절하게 대응하도록 강제하는 효과가 있다.  
   
+## Optional 적용 패턴
+### Optional 객체 만들기
+#### 빈 Optional
+``` java
+Optional<Car> optCar = Optional.empty();
+```  
+#### null이 아닌 값으로 Optional 만들기
+``` java
+ Optional<Car> optCar = Optional.of(car);
+```  
+car가 null이라면 즉시 NPE발생.  
+Optional을 사용하지 않았다면, car의 프로퍼티에 접근하려 할 때 에러 발생.  
+
+#### null값으로 Optional 만들기
+``` java
+ Optional<Car> optCar = Optional.ofNullable(car);
+```  
+null값을 저장할 수 있는 Optional.  
+car가 null이면 빈 Optional 객체가 반환.  
+
+* get()으로 Optional의 값을 가져올 수 있는데, Optional이 비어있으면 NPE가 발생한다.  
+* Optional에서 제공하는 기능이 스트림연산에서 영감을 받았다.  
+ 
 
 

@@ -120,5 +120,41 @@ car가 null이면 빈 Optional 객체가 반환.
 * get()으로 Optional의 값을 가져올 수 있는데, Optional이 비어있으면 NPE가 발생한다.  
 * Optional에서 제공하는 기능이 스트림연산에서 영감을 받았다.  
  
+ 
+### Map으로 Optional 값을 추출하고 변환하기  
+``` java
+ String name = null;
+		if(insurance != null) 
+			name = insurance.getName();
+ 
+ ----------------------------------
+ Optional<Insurance> optInsurance = Optional.ofNullable(insurance);
+	Optional<String> name = optInsurance.map(Insurance :: getName);
+	
+```  
+Optional의 map은 Stream의 map 메서드와 비슷하다.  
+Optional이 값을 포함하면 map의 인수로 제공된 함수가 값을 바꾼다.  
+Optional이 비어있으면 아무 일도 일어나지 않는다.  
+ 
+### flatMap으로 Optional 객체 연결  
+``` java
+ 
+ // 컴파일 되지 않음
+ // getCar는 Optional<Car>형식 객체 반환
+ Optional<String> name = optPerson.map(Person::getCar) // Optional<Optional<Car>>
+				.map(Car :: getInsurance) // The type Car does not define getInsurance(Optional<Car>) that is applicable here
+				.map(Insurance :: getName);
+ 
+ -----------------------------------
+ 
+ 이차원 Optional을 일차원 Optional로 평준화
+ Optional<String> name = optPerson.flatMap(Person::getCar)
+				.flatMap(Car :: getInsurance)
+				.map(Insurance :: getName); // Insurance::getName은 평범한 문자열을 반환하므로 추가 "flatMap"은 필요가 없음.
+
+ 
+```
+
+
 
 

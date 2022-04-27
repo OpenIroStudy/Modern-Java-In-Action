@@ -194,9 +194,10 @@ Java 직렬화는 자바 시스템 내부에서 사용되는 객체 또는 데�
 기본(primitive)타입과 java.io.Serializable 인터페이스를 상속받은 객체는 직렬화 할 수 있는 기본 조건을 가짐.  
 https://velog.io/@sa1341/Java-%EC%A7%81%EB%A0%AC%ED%99%94%EB%A5%BC-%ED%95%98%EB%8A%94-%EC%9D%B4%EC%9C%A0%EA%B0%80-%EB%AC%B4%EC%97%87%EC%9D%BC%EA%B9%8C  
 
-![image](https://user-images.githubusercontent.com/67637716/165417206-1d45d64a-c1ca-42a8-b41c-baba747c0c16.png)
-
-```
+ 
+```  
+![image](https://user-images.githubusercontent.com/67637716/165417206-1d45d64a-c1ca-42a8-b41c-baba747c0c16.png)  
+	
 	
 	
 	

@@ -251,6 +251,69 @@ orElse는 null이던말던 항상 불림  ::
 orElseGet은 null일 때만 불림  
 ```  
 
+* orElseThrow(Supplier<? extends X> exceptionSupplier)
+	* Optional이 비었을 때 예외를 발생
+	* get과 비슷하지만 발생시킬 예외의 종류를 선택 가능
+
+* ifPresent(Consumer<? super T> consumer)
+	* 값이 존재할 때 인수로 넘겨준 동작을 실행 가능
+	* 값이 없으면 아무일도 일어나지 않음.
+
+* java9 method : ifPresentOrElse(Consumer<? super T> action, Runnable emptyAction) 
+	* Optional이 비었을 때 실행할 수 있는 Runnable을 인수로 받는다
+
+
+### 두 Optional 합치기
+* isPresent() : Optional이 값을 포함하는지 여부를 알려준다.  
+
+``` java
+ public Insurance findCheapestInsurance(Person person, Car car) {
+        // 다양한 보험회사가 제공하는 서비스 조회
+        // 모든 결과 데이터 비교
+        return cheapestCompany;
+    }
+    
+    public Optional<Insurance> nullSafeFindCheapestInsurance(Optional<Person> person, Optional<Car> car){
+        if(person.isPresent() && car.isPresent()) {
+            return Optional.of(findCheapestInsurance(person.get(), car.get()));
+        }else {
+            return Optional.empty();
+        }
+    }
+
+// 위의 메서드를 
+return person.flatMap(p -> car.map(c -> findCheapestInsurance(p, c)));
+// 한 줄로 줄일 수 있음.
+```  
+
+### filtering 
+filter 메서드는 Predicate를 인수로 받는다.  
+Optional 객체가 값을 가지며 predicate와 일치하면 filter메서드는 그 값을 반환하고 그렇지 않으면 빈 Optional을 반환.  
+``` java
+Insurance insurance = null;
+        if(insurance != null && "CambridgeInsurance".equals(insurance)) {
+            System.out.println("ok");
+        }
+
+=================================================
+Optional<Insurance> optInsurance = Optional.empty();
+        optInsurance.filter(insurance -> "CambridgeInsurance".equals(insurance.getName()))
+        .ifPresent(x -> System.out.println("ok"));
+```  
+
+![image](https://user-images.githubusercontent.com/67637716/165514601-8dca6b88-ebb8-4810-ab14-dd356cfb6467.png)  
+
+
+
+
+
+
+
+
+
+
+
+
 
 	
 	

@@ -198,6 +198,62 @@ https://velog.io/@sa1341/Java-%EC%A7%81%EB%A0%AC%ED%99%94%EB%A5%BC-%ED%95%98%EB%
 ```  
 ![image](https://user-images.githubusercontent.com/67637716/165417206-1d45d64a-c1ca-42a8-b41c-baba747c0c16.png)  
 	
+### java9 - Optional.stream, 스트림 조작
+java9에서는 Optional을 포함하는 스트림을 쉽게 처리할 수 있도록 Optional에 stream() 메서드를 추가했다.  
+Optional 스트림을 값을 가진 스트림으로 변환할 때 이 기능을 유용하게 활용할 수 있다.  
+	
+``` java
+ public Set<String> getCarInsuranceNames(List<Person> persons){
+          return persons.stream()
+                .map(Person::getCar) // Stream<Optional<Car>> 
+                .map(optCar -> optCar.flatMap(Car::getInsurance)) // Stream<Optional<Insurance>> 
+                .map(optIns -> optIns.map(Insurance::getName)) // Stream<Optional<String>> 
+                .flatMap(Optional::stream)
+                .collect(Collectors.toSet());
+    }	
+	
+/// 위의 코드에서 3번째 변환을 거친 결과 Stream<Optional<String>>를 얻는데 결과가 비어있을 수 있다. 
+// 마지막 결과를 얻으려면 빈 Optional을 제거하고 값을 언랩해야한다.  
+
+public Set<String> getCarInsuranceNames(List<Person> persons){
+          return persons.stream()
+                .map(Person::getCar) // Stream<Optional<Car>>
+                .map(optCar -> optCar.flatMap(Car::getInsurance)) // Stream<Optional<Insurance>>
+                .map(optIns -> optIns.map(Insurance::getName)) // Stream<Optional<String>>
+                .filter(Optional::isPresent) // isPresent로 boolean return
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+
+    }
+
+```  
+
+### Optional unwrap
+Optional 클래스는 Optional 인스턴스에 포함된 값을 읽는 다양한 방법을 제공.  
+* get()
+	* 가장 간단한 메서드이면서 가장 안전하지 않은 메서드
+	* wrapping한 값이 있으면 반환, 없으면 NoSuchElementException
+
+* orElse(T other)
+	* Optional이 값을 포함하지 않을 때 기본값을 제공
+
+* orElseGet(Supplier<? extends T> other) 
+	* orElse 메서드에 대응하는 게으른 버전의 메서드
+	* Optional 값이 없을 때만 Supplier 실행.
+	* 디폴트 메서드를 만드는데 시간이 걸리거나 Optional이 비어있을 때만 기본값을 생성하고 싶을 때 사용
+
+``` 
+orElse는 null이던말던 항상 불림  :: 
+	userRepository.findByName(name).orElse(createUserWithName(name)); 
+	---------------------------------------------------------------------
+	User newUser = createUserWithName(name); 
+	return userRepository.findByName(name).orElse(newUser);
+orElseGet은 null일 때만 불림  
+```  
+
+
+	
+	
 	
 	
 	

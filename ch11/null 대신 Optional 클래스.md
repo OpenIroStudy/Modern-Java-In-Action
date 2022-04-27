@@ -304,23 +304,19 @@ Optional<Insurance> optInsurance = Optional.empty();
 ![image](https://user-images.githubusercontent.com/67637716/165514601-8dca6b88-ebb8-4810-ab14-dd356cfb6467.png)  
 
 
+## Optional을 사용한 실용 예제
+기존 자바 API는 Optional을 적절하게 활용하지 못하고 있다.  
+Optional을 활용할 수 있도록 코드에 작은 유틸리티 메서드를 추가하는 방식으로 문제를 해결할 수 있다.  
 
+### 잠재적으로 null이 될 수 있는 대상을 Optional로 감싸기
+null을 반환하는 것보다는 Optional을 반환하는 것이 더 바람직하다.  
 
+``` java
+Object value = map.get("key");
+// Map.get의 시그니처는 고칠수 없지만 get메서드의 반환값은 Optional로 감쌀 수 있다.
 
+// IF-then-else를 추가하거나 Optional.ofNullable을 이용하는 두 가지 방법이 있다.
+Optional<Object> value = Optional.ofNullable(map.get("key"));
 
-
-
-
-
-
-
-
-	
-	
-	
-	
-	
-
-
-
+```
 

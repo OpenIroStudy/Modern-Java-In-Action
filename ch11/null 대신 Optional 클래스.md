@@ -148,12 +148,54 @@ Optional이 비어있으면 아무 일도 일어나지 않는다.
  -----------------------------------
  
  이차원 Optional을 일차원 Optional로 평준화
- Optional<String> name = optPerson.flatMap(Person::getCar)
+ Optional<String> optname = optPerson.flatMap(Person::getCar)
 				.flatMap(Car :: getInsurance)
 				.map(Insurance :: getName); // Insurance::getName은 평범한 문자열을 반환하므로 추가 "flatMap"은 필요가 없음.
 
- 
+String name = optname.orElse("UnKnown"); // 결과 optName이 비어있으면 기본값 사용
+	
 ```
+	
+### Optional을 이용한 참조 체인
+![image](https://user-images.githubusercontent.com/67637716/165416305-82fa7186-0c39-4987-9c5e-4a4e1026c50b.png)  
+* Step 1 - flatMap()을 통해 Optional<Optional<Car>> 타입을 Optional<Car>로 평준화
+* Step 2 - flatMap()을 통해 Optional<Optional<Insurance>> 타입을 Optional<Insurance>로 평준화
+* Step 3 - map()을 통해 Optional<String> 반환
+	* getName()은 String을 반환하므로 flatMap() 사용할 필요가 없음
+* Step 4 - orElse() 메소드로 값이 없을 경우 기본값을 사용하도록 강제  
+
+map연산일 경우 Optional<Optional<Car>>을 반환하는데 flatMap으로 Optional을 평준화한다.  
+평준화 과정이란 두 Optional을 합치면서 하나라도 null이면 빈 Optional을 생성하는 연산이다.  
+	
+
+### Optional을 사용했을 때 데이터를 직렬화할 수 없는 이유
+자바 언어 아키텍트 브라이언 고츠(Brian Goetz)는 Optional의 용도를 선택형 반환값을 지원하는 것이라고 명확하게 못박음  
+Optional 클래스는 필드 형식으로 사용할 것을 가정하지 않았으므로 Serializable 인터페이스를 구현하지 않는다.  
+따라서 도메인 모델에 Optional을 사용한다면 직렬화 모델을 사용하는 도구나 프레임워크에서 문제가 생길수 있다.  
+이와 같은 단점에도 불구하고 Optional을 사용해서 도메인 모델을 구성하는것이 바람직하다고 한다.  
+직렬화 모델이 필요하다면 Optional로 값을 반환받을 수 있는 메서드를 추가하는 방식이 있다.  
+	
+``` java
+public class Person {
+	private Car car;
+	public Optional<Car> getCarAsOptional(){
+		return Optional.ofNullable(car);
+	}
+}
+```  
+	
+``` html
+Java 직렬화란?  
+Java 직렬화는 자바 시스템 내부에서 사용되는 객체 또는 데이터들을 외부의 자바 시스템에서도 사용할 수 있도록  
+바이트(byte) 형태로 데이터 변환하는 기술과 바이트로 변환된 데이터를 다시 객체로 변환하는 역직렬화를 포함.  
+시스템적으로 JVM의 Runtime Data Area(Heap 또는 스택영역)에 상주하고 있는 객체 데이터를 바이트 형태로 변환하는 기술과  
+직렬화된 바이트 형태의 데이터를 객체로 변환해서 JVM으로 상주시키는 형태를 말한다.  
+	
+기본(primitive)타입과 java.io.Serializable 인터페이스를 상속받은 객체는 직렬화 할 수 있는 기본 조건을 가짐.  
+```
+	
+	
+	
 
 
 

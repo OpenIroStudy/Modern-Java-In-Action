@@ -318,5 +318,30 @@ Object value = map.get("key");
 // IF-then-else를 추가하거나 Optional.ofNullable을 이용하는 두 가지 방법이 있다.
 Optional<Object> value = Optional.ofNullable(map.get("key"));
 
-```
+```  
+
+### 예외와 Optional 클래스
+* OptionalUtility Class 만들기
+문자열을 정수로 변환하는 메서드 Integer.parseInt(String)이 있다.  
+문자열을 정수로 바꾸지 못할 때 NumberFormatException을 발생시킨다.  
+
+``` java
+public class OptionalUtility {
+    public static Optional<Integer> stringToInt(String s) {
+        try {
+            return Optional.of(Integer.parseInt(s));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+    }
+}
+```  
+위와 같은 메서드를 포함하는 유틸리티 클래스를 만들면 기존처럼 try/catch로직을 사용할 필요가 없다.  
+
+### 기본형 Optional을 사용하지 말아야 하는 이유
+스트림처럼 Optional도 기본형으로 특화된 OptionalInt, OptionalLong, OptionalDouble 등의 클래스를 제공.  
+스트림에선 많은 요소를 포함할 경우 기본형 특화 스트림을 이용해서 성능을 향상 시킬수 있었다.  
+하지만 Optional의 최대 요소 수는 한 개이므로 ,Optional에서는 기본형 특화 클래스로 성능을 개선할 수 없다.  
+<br>
+기본형 특화 Optional은 Optional 클래스의 유용한 메서드 map, flatMap, filter를 지원하지 않음으로 권장하지 않는다.  
 

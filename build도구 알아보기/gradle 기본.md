@@ -205,6 +205,129 @@ gradle -q hello
 
 
 
+=======================================================================================================
+
+# gradle 멀티 프로젝트 만들기
+1. root 프로젝트를 새로 만든후, 필요 없는 src폴더 등 삭제  
+2. root 프로젝트 안에 프로젝트들을 복사 후 이동 ( 이 때 IDE의 workspace에 같은 이름의 프로젝트가 있으면 인식 안됨.)
+3. 멀티 프로젝트도 필요 없는 파일 삭제  
+![image](https://user-images.githubusercontent.com/67637716/167521171-9add1c33-3978-42eb-82e5-3a5f3be8c4c5.png)  
+4. root의 settings.gradle에 밑의 그림과 같이 작성   
+![image](https://user-images.githubusercontent.com/67637716/167521227-b9395e90-0b19-4de3-a7d1-ef1670836ad3.png)  
+5. build.gradle 작성법
+    * 기본적으로 root의 build.gradle에 작성시 멀티 프로젝트에 공통으로 적용됨.
+    * 멀티 프로젝트 : 특별하게 의존성이 필요한 것만 주입
+    * ![image](https://user-images.githubusercontent.com/67637716/167521338-8dbf4ee8-d668-4fc6-8b9a-306a4fc6fe10.png)
+
+## root build.gradle 작성
+``` java
+buildscript {
+    ext {
+        springBootVersion = '2.3.4.RELEASE'
+        dependencyManagementVersion = '1.0.10.RELEASE'
+    }
+
+    repositories {
+        mavenLocal()
+        maven {
+            url "$repoUrl/reop-public"
+            allowInsecureProtocol = true
+            credentials {
+                username "$repoUsername" 
+                password "$repoPassword"
+            }
+        }
+    }
+    
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("io.spring.gradle:dependency-management-plugin:${dependencyManagementVersion}")
+    }
+}
+
+plugins {
+    id 'base'
+    id 'java'
+}
+
+allprojects {
+    group = 'kr.co.openlabs'
+    version = '0.0.1-SNAPSHOT'
+    sourceCompatibility = '1.8'
+}
+
+subprojects {
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'java-library'
+    apply plugin: 'java'
+
+	
+    repositories {  
+        mavenLocal()
+        maven {
+            url "$repoUrl/repo-public"
+            allowInsecureProtocol = true
+            credentials {
+                username "$repoUsername" 
+                password "$repoPassword"
+            }
+        }
+    }
+
+    dependencies {
+	// 라이브러리를 등록할 때에 버젼 지정을 안하는 것은 ‘spring-boot’ 플러그인을 적용시에 관련된 라이브러리에 버젼이 이미 설정되어있기 때문에 생략이 가능하다.
+        implementation('kr.co.repo:openIroStudy-project:0.0.1-SNAPSHOT') {
+            changing=true
+        }
+
+        runtimeOnly 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
+        runtimeOnly 'mysql:mysql-connector-java'
+        runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+        runtimeOnly 'org.postgresql:postgresql'
+
+        implementation 'io.springfox:springfox-swagger2:3.0.0'
+        implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+		
+		implementation 'org.springframework.boot:spring-boot-starter-web'
+		
+		// mybatis        
+		implementation 'org.mybatis:mybatis:3.5.6'
+		implementation 'org.mybatis:mybatis-spring:1.3.2'
+		
+		implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    
+        compileOnly 'org.projectlombok:lombok'
+        developmentOnly 'org.springframework.boot:spring-boot-devtools'
+        annotationProcessor 'org.projectlombok:lombok'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        
+        // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+    	implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+    	
+    	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
+
+```  
+
+
+* buildscript 
+	* gradle 로 task 를 수행할 때에 사용되는 설정이다. 즉, 소스 컴파일과는 무관한다. 
+	* 그러므로 dependency 를 추가할 때 buildscript 안에다가 정의하는 것과 밖에다가 정의하는 것은 매우 큰 차이가 있다.  
+
+* // mavenCentral() : Maven 중앙 저장소
+	// 라이브러리들을 가져올 레파지토리를 등록
+
+
+
+![image](https://user-images.githubusercontent.com/67637716/167520964-0e5f4867-788d-4015-946f-856f67d6d0f7.png)
 
 
 

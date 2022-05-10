@@ -59,7 +59,8 @@ Maven에서 사용되는 저장소는 로컬저장소, 원격저장소, 중앙�
 설정은 <repositories>,<pluginRepositories>태그로 하게되는데  
 pom.xml 파일에 정의해도되고, settings.xml 파일에 정의해도 되지만 일반적으로 settings.xml 에 정의해서 공통으로 사용되도록 한다.  
 
-  
+ ![image](https://user-images.githubusercontent.com/67637716/167546584-3990f42d-5b07-4b42-922a-687e0d48b373.png)
+ 
   
 # pom.xml 기본설정
 완.벽.정.리  

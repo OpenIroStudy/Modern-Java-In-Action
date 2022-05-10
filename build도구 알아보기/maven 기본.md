@@ -65,3 +65,6 @@ pom.xml 파일에 정의해도되고, settings.xml 파일에 정의해도 되지
 # pom.xml 기본설정
 완.벽.정.리  
 https://m.blog.naver.com/PostView.naver?blogId=vefe&logNo=221771584313&targetKeyword=&targetRecommendationCode=1  
+
+# jar, war, ear 차이점
+https://simuing.tistory.com/entry/JAVA-EAR-JAR-WAR-%EC%B0%A8%EC%9D%B4%EC%A0%90

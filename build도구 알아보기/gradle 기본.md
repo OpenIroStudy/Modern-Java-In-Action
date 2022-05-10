@@ -144,13 +144,13 @@ dependencies {
   * 의존 라이브러리 수정시 본 모듈까지만 재빌드한다.
   * 본 모듈을 의존하는 모듈은 해당 라이브러리의 api 를 사용할 수 없음
   * A모듈을 수정하게 되면 A를 직접적으로 의존하는 모듈까지만 rebuild 한다.(빠르다)
+  * API 노출을 막는다.
+    * 사용자에게 필요이상의 API를 노출하는 것은 불필요하다.(Facade 패턴)
+    * compile을 사용하면 연결된 모든 모듈의 API가 노출된다.
 
 * api
   * 의존 라이브러리 수정시 본 모듈을 의존하는 모듈들도 재빌드
   * 본 모듈을 의존하는 모듈들도 해당 라이브러리의 api 를 사용할 수 있음
-  * API 노출을 막는다.
-    * 사용자에게 필요이상의 API를 노출하는 것은 불필요하다.(Facade 패턴)
-    * compile을 사용하면 연결된 모든 모듈의 API가 노출된다.
 
 * compileOnly
   * 이름에서 알 수 있듯이 compile 시에만 빌드하고 빌드 결과물에는 포함하지 않는다.
@@ -164,6 +164,48 @@ dependencies {
 
 * testImplementation 
   * 테스트 코드를 수행할 때만 적용.
+
+
+# 테스크 정의
+gradle은 명령에 의해 `테스크(task)`를 수행하는 프로그램.  
+위에서 gradle compileJava라던지 gradle run와 같은 명령어를 사용하였는데, 이들도 모두 `compileJava task수행`, `run task수행`이라는 것.  
+
+### 테스크 정의 기본
+테스크는 사용자가 정의할 수 있다.  
+build.gradle에서 테스크의 처리를 기술해두면, 그것을 gradle명령으로 호출 실행 시킬 수 있음.  
+``` java
+task 테스크명{
+ ... 수행할 처리 ...
+}
+
+/// 또는
+
+task(테스크명){...}
+```  
+`task`라는 키워드를 사용하여 정의.  
+
+#### example
+``` java
+task hello {
+ println("이것은 hello task를 실행한 것")
+} 
+```  
+cmd나 터미널에서 다음과 같이 실행. 혹은 spring boot gradle task.  
+``` java
+gradle hello
+```  
+이렇게 하면 hello 테스크가 실행.  
+실행해 보면, println으로 출력하는 문장 이외에도 다양한 문장이 출력됨.  
+```  
+// quite모드로 테스크를 수행하면 많은 부분이 사라짐. -q 옵션을 지정하고 아래와 같이 실행.
+gradle -q hello
+```  
+
+
+
+
+
+
 
 
 

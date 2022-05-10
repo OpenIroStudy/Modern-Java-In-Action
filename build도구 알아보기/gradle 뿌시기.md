@@ -18,14 +18,14 @@ gradle 개발을 하기 위해 먼저 프로젝트를 준비.
 1. 프로젝트를 생성할 위치로 이동
   * cd /Users/hong/workspace/dev
 2. 프로젝트 디렉토리 만듬
-  * 여기서는 'gradleApp'라는 이름으로 디렉터리를 만들어 본다.
+  * 여기서는 `gradleApp`라는 이름으로 디렉터리를 만들어 본다.
   * mkdir gradleApp
 3. 프로젝트 디렉터리로 이동
   * cd gradleApp
 4. 마지막으로 프로젝트를 초기화
   * gradle init --type java-application
-  * 'gradle init' 이라는 것이 gradle 초기화를 위한 명령어.
-  * '--type java-application'은 java응용 프로그램 프로젝트 유형을 지정
+  * `gradle init` 이라는 것이 gradle 초기화를 위한 명령어.
+  * `--type java-application`은 java응용 프로그램 프로젝트 유형을 지정
 
 ! spring boot를 이용하면 쉽게 가능하지만 cl(command line)를 이용해 만드는 방법을 알아봄
 
@@ -77,3 +77,33 @@ gradle 개발을 하기 위해 먼저 프로젝트를 준비.
   * gradle jar
   * jar 테스크는 그 이름대로 프로그램을 jar파일에 모와서 저장.
   * 프로젝트에 생성되는 build 디렉토리 하위에 libs 디렉토리에 저장
+  * ![image](https://user-images.githubusercontent.com/67637716/167527155-333721da-b9ba-4a23-8f59-24d3ca315029.png)
+
+* 프로젝트 클린
+  * gradle clean
+  * 프로젝트를 빌드할 때 build 디렉토리에 여러 파일이 저장된다.  
+  * clean작업은 이 파일들을 제거하고 빌드 이전 상태로 되돌린다. 
+
+# Gradle 플로그인
+* Java 플러그인 추가
+``` java
+apply plugin: 'java'
+```  
+처음에 `apply plugin:`이라는 것은 gradle 플러그인을 사용하기 위한 것  
+`java`는 java 프로그램을 위한 기능을 제공하는 플러그인.  
+complieJava라는 테스크는 java플러그인에서 제공되는 것.  
+
+* application 플러그인 추가
+``` java
+apply plugin: 'application'
+```  
+`application`은 응용 프로그램에 대한 기능을 제공하는 플러그인 
+run 으로 응용프로그램을 실행할 수 있었던 것도 이 mainClassName 메인 클래스가 지정되어 있었기 때문.  
+
+# 저장소(repositories)
+build.gradle에 기술된 내용에는 "의존 라이브러리"에 대한 기술이 있다.  
+gradle에는 프로그램으로 필요한 라이브러리를 자동으로 다운로드하고 통합하는 기능이 있다.  
+따라서 `저장소(repository)`가 중요하다.  
+<br>
+
+

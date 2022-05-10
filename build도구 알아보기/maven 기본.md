@@ -47,4 +47,6 @@ site phase는 문서 사이트를 생성하고, site-deploy phase는 생성한 �
 
 
 
-
+# pom.xml 기본설정
+완.벽.정.리  
+https://m.blog.naver.com/PostView.naver?blogId=vefe&logNo=221771584313&targetKeyword=&targetRecommendationCode=1  

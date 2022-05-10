@@ -201,7 +201,66 @@ gradle hello
 gradle -q hello
 ```  
 
+### doFirst와 doLast
+``` java
+task 테스크명 {
 
+    doFirst {
+        ...... 수행할 처리 ......
+    }
+
+    doLast {
+        ...... 수행할 처리 ......
+    }
+}
+```  
+
+* doFirst : 최초에 수행하는 액션
+* doLast : 최후에 수행하는 액션.  
+
+task는 준비된 액션을 순서대로 실행해 나가는 역할.  
+액션이란 구체적으로 처리의 실행 단위 같은 것.  
+
+### 매개 변수 전달
+테스크는 수행할 때 필요한 값을 매개 변수로 전달할 수 있다.  
+
+``` java
+gradle msg -Px=값
+```  
+-P 다음에 변수명을 지정하고 그 뒤에 등호로 값을 지정  
+변수 name에 hong 값을 전달하고 싶다면 -Pname=hong 식으로 기술하면 됨. 
+
+``` java
+task hello {
+    doLast {
+        def n = max.toInteger()
+        for (def i in 1..n) {
+          println("No," + i + " count.")
+        }
+        println("end.")
+     }
+}
+
+// 테스크는 "max"라는 변수를 사용하여 최대값을 지정.
+gradle hello -Pmax=5
+``` 
+
+### 다른 테스크 호출
+테스크에서 다른 테스크를 호출하는 경우.  
+``` java
+task a { ... }
+task b { ... }
+```  
+a,b라는 테스크가 있을 때 task a에서 task b를 호출할 때는 tasks에 있는 작업 객체안의 메소드를 호출하여 실행해야함.  
+작업하는 것은 모든 tasks라는 객체에 정리하고 있음.  
+a,b테스크는 tasks.a, tasks.b로 지정가능.  
+이 테스크 객체 안에 있는 `execute`라는 메서드를 호출하여 테스크를 수행할 수 있음.
+
+``` java
+tasks.a.execute()
+tasks.b.execute()
+```  
+이런식으로 실행하여 테스크 a,b를 호출한다.  
 
 
 

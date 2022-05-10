@@ -33,5 +33,30 @@ gradle 개발을 하기 위해 먼저 프로젝트를 준비.
 ![image](https://user-images.githubusercontent.com/67637716/167525305-458d0be0-c6d7-48f3-bf23-05054c1e465d.png)  
 ![image](https://user-images.githubusercontent.com/67637716/167525337-80c71f3f-0dcd-4b5b-82db-7365a608ee16.png)  
 
+* .gradle 디렉토리
+  * gradle이 사용하는 폴더, 작업(task)로 생성된 파일이 저장
+  * 이 내용을 편집하는 일은 거의 없음
+
+* gradle디렉토리
+  * gradle이 필요한 경우 사용할 디렉토리
+  * 기본적으로 gradle환경을 정리한 Wrapper 파일이라는 파일들이 저장되어있음.
+
+* src 디렉토리
+  * 프로젝트에서 만든 프로그램 관련 디렉토리
+  * 프로젝트에서 사용하는 파일(소스코드, 각종 리소스 파일 등)은 모두 포함됨
+
+* build.gradle
+  * gradle 기본 빌드 설정 파일
+  * 이 안에 프로젝트 빌드 처리에 대해 내용이 작성되어 있음
+  * groovy 언어로 작성
+
+* gradlew, gradlew.bat
+  * 이 2개는 gradle명령
+  * bat이 붙어있는것이 window용이고 , gradlew는 macOS 및 Linux 용
+
+* setting.gradle
+  * 프로젝트에 대한 설정 정보를 작성한 파일
+  * MSA(Micro Service Architecture) 구조로 프로젝트를 구성할 경우, root 프로젝트 하위로 모듈을 추가할 경우 
+  * settings.gradle 파일에 모듈을 추가한다고 명시를 해야 함. 
 
 

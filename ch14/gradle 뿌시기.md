@@ -60,3 +60,20 @@ gradle 개발을 하기 위해 먼저 프로젝트를 준비.
   * settings.gradle 파일에 모듈을 추가한다고 명시를 해야 함. 
 
 
+# gradle init 명령과 type 종류
+* java-application : java 애플리케이션 프로젝트 작성에 대한 타입, 기본적으로 Application.java 파일 제공
+* java-library : java 라이브러리 프로젝트 생성, 샘플로 제공되는 소스 코드 파일이 응용프로그램의 메인 클래스가 되어있지 않다는 정도의 차이
+
+### 컴파일 및 실행
+* 프로그램 컴파일
+  * gradle compileJava
+  * 컴파일은 compileJava라는 테스트로 제공, java 소스 코드를 컴파일 하기 위한 것
+
+* 프로그램 실행
+  * gradle run
+  * java-application 타입의 프로젝트는 run task라는 것이 제공되고, 이를 실행하여 메인클래스를 실행가능
+
+* 프로그램 패키지
+  * gradle jar
+  * jar 테스크는 그 이름대로 프로그램을 jar파일에 모와서 저장.
+  * 프로젝트에 생성되는 build 디렉토리 하위에 libs 디렉토리에 저장

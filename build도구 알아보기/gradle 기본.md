@@ -59,12 +59,16 @@ gradle 개발을 하기 위해 먼저 프로젝트를 준비.
   * MSA(Micro Service Architecture) 구조로 프로젝트를 구성할 경우, root 프로젝트 하위로 모듈을 추가할 경우 
   * settings.gradle 파일에 모듈을 추가한다고 명시를 해야 함. 
 
+* gradle wrapper
+  * gradle 설치 없이 프로젝트의 gradle 작업을 수행할 수 있도록 하는 파일
+  * os에 따라 gradlew혹은 gradlew.bat 실행
+  * 일반적으로 설치된 gradle보다 gradle wrapper을 사용하는 것이 권장 (작업 실행을 표준화함)
 
 # gradle init 명령과 type 종류
 * java-application : java 애플리케이션 프로젝트 작성에 대한 타입, 기본적으로 Application.java 파일 제공
 * java-library : java 라이브러리 프로젝트 생성, 샘플로 제공되는 소스 코드 파일이 응용프로그램의 메인 클래스가 되어있지 않다는 정도의 차이
 
-### 컴파일 및 실행
+### 컴파일 및 실행, tasks
 * 프로그램 컴파일
   * gradle compileJava
   * 컴파일은 compileJava라는 테스트로 제공, java 소스 코드를 컴파일 하기 위한 것
@@ -84,7 +88,18 @@ gradle 개발을 하기 위해 먼저 프로젝트를 준비.
   * 프로젝트를 빌드할 때 build 디렉토리에 여러 파일이 저장된다.  
   * clean작업은 이 파일들을 제거하고 빌드 이전 상태로 되돌린다. 
 
+
+* check : 테스크 등의 검증 작업 실행
+* assemble : 배포할 결과물 생성
+
+* build
+  * gradle build
+  * 테스트 -> 컴파일(.class 생성) -> .jar 파일 생성
+  * check와 assemble 실행
+
+
 # Gradle 플러그인
+Project에 Java 애플리케이션 빌드에 필요한 기능을 추가하는 Plugin  
 * Java 플러그인 추가
 ``` java
 apply plugin: 'java'
@@ -263,6 +278,55 @@ tasks.b.execute()
 이런식으로 실행하여 테스크 a,b를 호출한다.  
 
 
+# build.gradle
+## 원리
+build.gradle은 파일 자체가 Project 오브젝트(객체)로, project 오브젝트는 project 인터페이스를 구현하는 구현체이다.  
+Project 오브젝트는 Project 단위에서 필요한 작업을 수행하기 위해 모든 메서드와 프로퍼티를 모아놓은 슈퍼 객체이다. 
+![image](https://user-images.githubusercontent.com/67637716/167541142-2e1a9f8c-4e3f-4bc7-b516-bf08b046ee29.png)  
+
+우리가 build.gradle에 작성하는 수많은 코드들은 모두 Project 오브젝트의 프로퍼티와 메서드가 되며,  
+Project 오브젝트는 프로젝트 이름부터 변수, 메서드를 모두 포함하는 객체가 된다.  
+
+Project 메서드 중에 대표적인 것은 모든 java application용 build.gradle이 가진 plugins, repositories, dependencies, application 메서드 이다.  
+우리가 gradle task를 이용해 java application을 빌드하게 되면 build task는 이 메서드들을 수행시킨다.  
+![image](https://user-images.githubusercontent.com/67637716/167541317-e24791cc-39b3-484b-a1e4-80373f134894.png)  
+{}로 감싸여진 부분은 메서드의 인자로 받아지는 Groovy의 클로저(Closure)인데, Groovy의 클로저는 Java나 Kotlin의 람다와 같다.  
+따라서 {} 블록 내부의 메서드들은 메서드의 인자로 넘겨질 수도 있다.  
+
+※ 자바에서 클로저는 람다식이나 내부 클래스 같은 영역 안에서 외부에서 정의된 변수를 사용하는 방식을 의미한다.  
+
+## build.gradle 작성
+* plugins
+프로젝트를 빌드하기 위해 여러가지 작업을 처리해줘야한다. (컴파일, jar파일 생성 등)  
+이런작업들을 해주는 플러그인 추가( 플러그인은 필요한 과정들을 task로 포함하고 있음)  
+빌드 시 필요한 모든 과정을 플로그인의 내부 task가 진행  
+
+* repositories
+저장소 정보를 관리  
+로컬환경이나 네트워크에 라이브러리를 공개하고 그 주소를 저장소로 등록하면 저장소에 있는 라이브러리를 gradle이 취득하여 이용가능.  
+대표적으로 maven 중앙 저장소, JCenter저장소, maven 원격저장소(Nexus)가 있음.  
+Nexus는 일반적으로 인터넷망에 접속하지 못하는 망분리환경에서 내부적으로 의존성들을 관리하기 위해 사용됨.  
+매번 외부망에서 의존성을 끌어오지 않고 내부망 Nexus를 proxy(cache)로 사용함으로써 좀 더 빠르게 의존성을 다운로드 할 수 있으며  
+조직 내부에서만 사용하는 의존성을 배포해서 여러팀간 공유하는 목적으로도 활용된다.  
+
+* dependencies
+의존성에 관한 설정을 관리하는 프로퍼티.  
+여기에 필요한 라이브러리 등의 정보를 기술하면 그 라이브러리를 참조할 수 있다,  
+
+* ext
+ext블록은 gradle의 모든 task에서 사용할 수 있는 일종의 전역 변수를 선언하는 블록
+
+* buildscript
+buildscript는 빌드하는 동안 필요한 처리를 모아놓은 곳.
+이 안에서 dependencies와 repositories가 포함 할 수 있음
+
+* allprojects, subprojects, project
+멀티 모듈일 경우 새로운 블록이 등장한다.  
+allprojects는 전체 프로젝트에, subprojects는 하위 프로젝트에, 그리고 프로젝트 이름을 사용한 project는 해당하는 프로퍼티에만 동작.
+
+* task
+사용자가 임의로 task를 작성해서 사용
+
 
 =======================================================================================================
 
@@ -375,15 +439,6 @@ subprojects {
 }
 
 ```  
-
-
-* buildscript 
-	* gradle 로 task 를 수행할 때에 사용되는 설정이다. 즉, 소스 컴파일과는 무관한다. 
-	* 그러므로 dependency 를 추가할 때 buildscript 안에다가 정의하는 것과 밖에다가 정의하는 것은 매우 큰 차이가 있다.  
-
-* // mavenCentral() : Maven 중앙 저장소
-	// 라이브러리들을 가져올 레파지토리를 등록
-
 
 
 ![image](https://user-images.githubusercontent.com/67637716/167520964-0e5f4867-788d-4015-946f-856f67d6d0f7.png)

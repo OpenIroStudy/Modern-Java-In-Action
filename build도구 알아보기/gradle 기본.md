@@ -374,7 +374,7 @@ plugins {
 }
 
 allprojects {
-    group = 'kr.co.openlabs'
+    group = 'kr.co.openIro'
     version = '0.0.1-SNAPSHOT'
     sourceCompatibility = '1.8'
 }

@@ -124,7 +124,14 @@ subscribe를 할 때 아이템들을 흘려보낸다.
 * 대표적인 Observable
 
 
+# Reactor vs RxJava
+리액터는 Java로 구현 된 리액티브 프로그래밍의 한 종류  
+Reactor, RxJava는 Reactive Streams를 구현한 구현체  
 
+RxJava보다 Reactor를 해야하는 이유!  
+* reactor가 spring5에서 지원하는 reactive 프로그래밍의 기본  
+
+RxJava에서 데이터를 발행하는 역할을 하는게 Observable, Flowable 등이 Reactor에서 Flux, Mono  
 
 
 

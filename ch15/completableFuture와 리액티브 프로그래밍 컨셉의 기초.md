@@ -480,3 +480,103 @@ System.out.println(y.get() + z.get());
   <br><br>
   
   
+15.3 박스와 채널 모델   
+ 박스와 채널모델로 생각과 코드를 구조화 할 수 있고, 대규모 시스템 구현의 추상화 수준을 높일 수 있다.    
+  p함수에 인수 x를 이용해 호출하고 그 결과를 q1, q2에 전달하며 이 두 호출의 결과로 함수 r을 호출한 다음 결과를 출력한다.   
+![image](https://user-images.githubusercontent.com/43237961/168563484-2a3dd575-2da7-4450-a5db-04412d6cac37.png)    
+
+```java
+// 하드웨어 병렬성과 거리가 먼 코드
+int t = p(x);
+System.out.println( r(q1(t), q2(t)) );
+
+// Future를 이용해 f,g를 병렬로 평가하는 방법
+int t = p(x);
+Future<Integer> a1 = executorService.submit(() -> q1(t));
+Future<Integer> a2 = executorService.submit(() -> q2(t));
+System.out.println( r(a1.get(),a2.get()));
+```
+ <br> 
+ p는 다름 어떤 작업보다 먼저 처리해야 하며 r은 모든 작업이 끝난 다음 가장 마지막으로 처리해야 한다.   
+ 따라서 p와 r은 Future로 감싸지 않았다.   
+ 
+ 병렬성을 극대화하려면 (p, q1, q2, r, s)를 Future로 감싸야 한다.   <br>
+ 
+ 많은 태스크가 get() 메서드를 호출해 Future가 끝나기를 기다리는 상태에 놓일수 있다.
+
+시스템 구조가 얼마나 많은 수의 get()을 감당할 수 있을지 예측하기 어려움.  
+
+자바8에서는 CompletableFuture와 콤비네이터를 이용해 해결할 수 있다.  
+
+<br><br><br> 
+ 
+ ####### 15.4 CompletableFuture와 콤비네이터를 이용한 동시성
+ 
+ 일반적으로 Future는 실행해서 get()으로 결과를 얻을 수 있는 Callable로 만들어진다.  
+
+CompletableFuture는 실행할 코드 없이 Future를 만들 수 있게 허용하며   
+complete() 메서드를 이용해 나중에 어떤 값을 이용해 다른 스레드가 이를 완료할 수 있고   
+get()으로 값을 얻을 수 있게 허용한다.    
+ 
+ 
+```java
+ public class CFComplete {
+    public static void main(String[] args)
+    throws ExecutionException, InterruptedException {
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        int x = 1337;
+        CompletableFuture<Integer> a = new CompletableFuture<>();
+        executorService.submit(() -> a.complete(f(x)));
+        int b = g(x);
+        System.out.println(a.get() + b);
+        executorService.shutdown();
+    }
+}
+
+// 또는 다음과 같이 구현
+public class CFComplete {
+    public static void main(String[] args)
+    throws ExecutionException, InterruptedException {
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        int x = 1337;
+        CompletableFuture<Integer> a = new CompletableFuture<>();
+        executorService.submit(() -> b.complete(g(x)));
+        int a = f(x);
+        System.out.println(a + b.get());
+        executorService.shutdown();
+    }
+}
+```
+ 하지만 f(x)나 g(x)의 실행이 끝나지 않으면 get()을 기다려야 하므로 프로세싱 자원 낭비할 수 있다.  
+  
+
+CompletableFuture을 사용하면 이를 해결할 수 있다.   --> 16장에서 더 자세히 다룸  
+ <br> 
+ 
+CompletableFuture<V> thenCombine(CompletableFuture<U> other, BiFunction<T, U, V> fn)  
+(T ,U)두개 CompletableFuture 값을 받아 새 값을 만든다  
+
+thenComine 메서드를 사용해 두 연산 결과를 효과적으로 연결  
+
+처음 두 작업이 끝나면 두 결과 모두에 fn을 적용하고 블록하지 않은 상태로 결과 Future를 반환.  
+
+ 
+```java
+ public class CFCombine {
+    public static void main(String[] args) throws ExecutionException,
+                            InterruptedException {
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        int x = 1337;
+        CompletableFuture<Integer> a = new CompletableFuture<>();
+        CompletableFuture<Integer> b = new CompletableFuture<>();
+        CompletableFuture<Integer> c = a.thenCombine(b, (y, z)-> y + z);
+        executorService.submit(() -> a.complete(f(x)));
+        executorService.submit(() -> b.complete(g(x)));
+        System.out.println(c.get());
+        executorService.shutdown();
+    }
+}
+```
+
+thenCombine절이 핵심이다.  
+ 
